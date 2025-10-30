@@ -1,4 +1,4 @@
-<div class="row p-0 m-0 bg-dark">
+<div class="row p-0 m-0">
     <!--
         LEFT COL
     -->
@@ -7,27 +7,29 @@
         <div #scrollContainer class="flex-grow-1 overflow-auto p-3" style="height: calc(100vh - 120px)">
             <div class="mb-3" *ngFor="let item of history">
                 <div class="d-flex justify-content-start" *ngIf="item.role == 'assistant'">
-                    <div class="text-light" style="max-width: 80%;">
+                    <div style="max-width: 80%;">
                         <app-typewriter-block [cps]="48" [caret]="true" [skipOnClick]="true"
                             (onFinished)="scrollToBottom()">
                             <div class="pt-3 px-3" [innerHTML]="item.content"></div>
                         </app-typewriter-block>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end text-secondary" *ngIf="item.role == 'user'">
-                    <div class="bg-dark border-secondary rounded-4 px-3 pt-2 pb-2" style="max-width: 80%;">
+                <div class="d-flex justify-content-end" *ngIf="item.role == 'user'">
+                    <div class="border rounded-4 px-3 pt-2 pb-2" style="max-width: 80%;">
                         {{ item.content }}
                     </div>
                 </div>
             </div>
         </div>
         <!-- Fixed input at bottom -->
-        <div class="fixed-bottom border-top border-secondary p-3 bg-dark">
-            <div class="d-flex justify-content-between align-items-center gap-3">
-                <input #inputBox [(ngModel)]="query" (keydown.enter)="send()" class="text-light form-control bg-transparent rounded-4 p-3" autofocus />
-                <button class="btn btn-secondary rounded-3" (click)="send()">
-                    Send
-                </button>
+        <div class="fixed-bottom p-3">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="d-flex justify-content-between align-items-center gap-3" style="min-width: 60vw;">
+                    <input #inputBox [(ngModel)]="query" (keydown.enter)="send()" class="form-control bg-transparent rounded-4 p-3" placeholder="Chat with the Agent..." autofocus />
+                    <button class="btn btn-primary rounded-3" (click)="send()">
+                        Send
+                    </button>
+                </div>
             </div>
         </div>
     </div>

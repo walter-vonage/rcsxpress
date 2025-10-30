@@ -4,6 +4,7 @@ import { ToastComponent } from '../../components/toast/toast.component';
 import { OpenAiConversation } from '../../models/open-ai-conversation.interface';
 import { InternetService } from '../../services/internet.service';
 import { CommonFunctions } from '../../utils/commons';
+import { FLOW } from '../../mock/flow';
 
 export interface RcsFlow {
     flowId: string;
@@ -399,7 +400,8 @@ Example output:
         this.sendWelcomeMessage();
         this.subscribe();
         setTimeout(() => {
-            this.askAIToCreateBase();
+            // this.askAIToCreateBase();
+            this.flowFromAi = FLOW;
         }, 5000)
     }
 

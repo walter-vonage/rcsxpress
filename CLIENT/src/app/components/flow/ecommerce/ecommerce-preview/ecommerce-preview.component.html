@@ -1,83 +1,91 @@
-<div class="container py-4 text-light" *ngIf="flow">
-    <h4 class="text-light mb-4">{{ flow.name }}</h4>
 
-    <!-- Basket (always visible) -->
-    <div class="card bg-dark border border-light text-light mb-4 basket-enter">
-        <div class="card-body">
-            <h5 class="card-title">
-                🛒 Your Basket
-                <span *ngIf="basket.length > 0">({{ basket.length }})</span>
-            </h5>
+<div class="position-relative mt-5">
+    <img src="./phone.png" class="position-absolute" style="width: 400px; left: 0; top: 0; right: 400px; bottom: 0;" />
+    <div class="position-abolute " style="margin-left: 39px!important; padding-top: 52px!important; width: 324px; height: 703px; overflow: hidden;" *ngIf="flow">
+        <div class="w-100 h-100 overflow-auto no-scrollbar">
 
-            <!-- Items -->
-            <ul class="mb-2 ps-3" *ngIf="basket.length; else emptyBasket">
-                <li *ngFor="let item of basket">{{ item }}</li>
-            </ul>
-
-            <!-- Empty state -->
-            <ng-template #emptyBasket>
-                <p class="fst-italic text-light small mb-2">Your basket is empty.</p>
-            </ng-template>
-
-            <div class="text-end">
-                <button class="btn btn-sm btn-outline-light" [disabled]="!basket.length" (click)="basket = []">
-                    Clear Basket
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Conversation flow -->
-    <div *ngFor="let step of visibleSteps" class="mb-3">
-
-        <!-- Message -->
-        <div *ngIf="step.type === 'message'" class="border border-light rounded-4 px-4 py-2">
-            {{ step.text }}
-        </div>
-
-        <!-- Wait -->
-        <div *ngIf="step.type === 'wait'" class="text-secondary small text-center fst-italic">
-            ⏳ Waiting {{ step.duration }}ms...
-        </div>
-
-        <!-- Card -->
-        <div *ngIf="step.type === 'card'" class="card bg-dark text-light shadow-sm border-0 mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ step.title }}</h5>
-                <p *ngIf="step.description" class="card-text">{{ step.description }}</p>
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <button *ngFor="let btn of step.buttons" class="btn btn-outline-light rounded-4"
-                        (click)="onButtonClick(btn)">
-                        {{ btn.label }}
-                    </button>
+            <h4 class="mb-4">{{ flow.name }}</h4>
+        
+            <!-- Basket (always visible) -->
+            <div class="sticky-top card shadow border-0 mb-4 basket-enter">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        🛒 Your Basket
+                        <span *ngIf="basket.length > 0">({{ basket.length }})</span>
+                    </h5>
+        
+                    <!-- Items -->
+                    <ul class="mb-2 ps-3" *ngIf="basket.length; else emptyBasket">
+                        <li *ngFor="let item of basket">{{ item }}</li>
+                    </ul>
+        
+                    <!-- Empty state -->
+                    <ng-template #emptyBasket>
+                        <p class="fst-italic small mb-2">Your basket is empty.</p>
+                    </ng-template>
+        
+                    <div class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary" [disabled]="!basket.length" (click)="basket = []">
+                            Clear Basket
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Checkout -->
-        <div *ngIf="step.type === 'checkout'" class="card bg-dark text-light border-info shadow-sm mb-3">
-            <div class="card-body">
-                <h5 class="card-title">{{ step.title }}</h5>
-                <p *ngIf="step.description" class="card-text">{{ step.description }}</p>
-
-                <ul class="small mb-3 ps-3" *ngIf="basket.length">
-                    <li *ngFor="let item of basket">{{ item }}</li>
-                </ul>
-
-                <div class="d-flex flex-wrap gap-2 mt-3">
-                    <button *ngFor="let btn of step.buttons" class="btn btn-info rounded-4"
-                        (click)="onButtonClick(btn)">
-                        {{ btn.label }}
-                    </button>
+        
+        
+            <!-- Conversation flow -->
+            <div *ngFor="let step of visibleSteps" class="mb-3">
+        
+                <!-- Message -->
+                <div *ngIf="step.type === 'message'" class="border rounded-4 px-4 py-2">
+                    {{ step.text }}
                 </div>
+        
+                <!-- Wait -->
+                <div *ngIf="step.type === 'wait'" class="small text-center fst-italic">
+                    ⏳ Waiting {{ step.duration }}ms...
+                </div>
+        
+                <!-- Card -->
+                <div *ngIf="step.type === 'card'" class="card border-0 mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ step.title }}</h5>
+                        <p *ngIf="step.description" class="card-text">{{ step.description }}</p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button *ngFor="let btn of step.buttons" class="btn btn-outline-dark rounded-4"
+                                (click)="onButtonClick(btn)">
+                                {{ btn.label }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Checkout -->
+                <div *ngIf="step.type === 'checkout'" class="card border-info shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ step.title }}</h5>
+                        <p *ngIf="step.description" class="card-text">{{ step.description }}</p>
+        
+                        <ul class="small mb-3 ps-3" *ngIf="basket.length">
+                            <li *ngFor="let item of basket">{{ item }}</li>
+                        </ul>
+        
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button *ngFor="let btn of step.buttons" class="btn btn-info rounded-4"
+                                (click)="onButtonClick(btn)">
+                                {{ btn.label }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        
+            </div>
+        
+            <div *ngIf="!running" class="text-center mt-4">
+                <button class="btn btn-success" (click)="startFlow()">▶️ Run Again</button>
             </div>
         </div>
-
+    
     </div>
-
-    <div *ngIf="!running" class="text-center mt-4">
-        <button class="btn btn-success" (click)="startFlow()">▶️ Run Again</button>
-    </div>
-
 </div>
+
