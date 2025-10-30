@@ -23,7 +23,7 @@ export class InternetService {
     //
     //  OPENAI
     //
-    sendOpenAi(query: string, history: Array<OpenAiConversation>, system: string, callback: any) {
+    sendOpenAi(query: string, history: Array<OpenAiConversation>, system: string | null, callback: any) {
         const lang: string = LangUtils.detectLanguage();
         this.internetCommon?.doPost(this.SERVER + '/' + this.APP, {
             action: 'ReceiveUserQuestion',

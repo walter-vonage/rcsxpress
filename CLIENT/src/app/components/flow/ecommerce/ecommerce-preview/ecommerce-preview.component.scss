@@ -1,0 +1,24 @@
+.card-title {
+    font-weight: 600;
+}
+
+.card.bg-dark.border-info {
+    border: 1px solid #17a2b8 !important;
+    box-shadow: 0 0 15px rgba(23, 162, 184, 0.3);
+}
+
+.basket-enter {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

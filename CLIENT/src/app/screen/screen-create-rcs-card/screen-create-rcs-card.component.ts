@@ -3,6 +3,7 @@ import { RCSModelForCard } from '../../models/rcs-model-for-card.interface';
 import { ToastComponent } from '../../components/toast/toast.component';
 import { OpenAiConversation } from '../../models/open-ai-conversation.interface';
 import { InternetService } from '../../services/internet.service';
+import { CommonFunctions } from '../../utils/commons';
 
 @Component({
     selector: 'app-screen-create-rcs-card',
@@ -10,8 +11,6 @@ import { InternetService } from '../../services/internet.service';
     styleUrl: './screen-create-rcs-card.component.scss'
 })
 export class ScreenCreateRcsCardComponent implements OnInit, AfterViewInit {
-
-
     /**
      * Controls elements from the HTML
     */
@@ -136,7 +135,7 @@ export class ScreenCreateRcsCardComponent implements OnInit, AfterViewInit {
                 console.log(response)
                 if (response && response.success) {
                     const openaiResponse = response.response.reply;
-                    const jsonResponse = this.parseIfJson(openaiResponse)
+                    const jsonResponse = CommonFunctions.parseIfJson(openaiResponse)
                     if (jsonResponse) {
                         this.sendRCSCard(jsonResponse, true);
                     } else {
@@ -172,84 +171,11 @@ export class ScreenCreateRcsCardComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Checks if the response from openai is a JSON with the final data
-     */
-    parseIfJson(str: string): any | null {
-        if (!str) return null;
-
-        // Remove Markdown fences like ```json ... ```
-        const cleaned = str.replace(/```json|```/g, "");
-
-        // Extract the substring that looks like JSON (first { ... last })
-        const start = cleaned.indexOf("{");
-        const end = cleaned.lastIndexOf("}");
-
-        if (start === -1 || end === -1 || end <= start) {
-            return null;
-        }
-
-        const possibleJson = cleaned.substring(start, end + 1);
-
-        try {
-            return JSON.parse(possibleJson);
-        } catch (e) {
-            console.error("JSON parse failed:", e);
-            return null;
-        }
-    }
-
-    /**
      * Sends the RCS card to the user
      */
     sendRCSCard(jsonResponse: RCSModelForCard, continueWithNormalFlow: boolean) {
-        console.log('jsonResponse', jsonResponse)
-        const to = jsonResponse.phoneToSendMessage;
-        const suggestions = [];
-        for (let button of jsonResponse.buttons) {
-            if (button.type == 'reply') {
-                suggestions.push({
-                    reply: {
-                        text: button.label,
-                        postbackData: button.reply
-                    }
-                })
-            }
-            else if (button.type == 'url') {
-                suggestions.push({
-                    action: {
-                        text: button.label,
-                        postbackData: 'open_url',
-                        openUrlAction: {
-                            url: button.url
-                        }
-                    }
-                })
-            }
-        }
-        const payload = {
-            card: {
-                "title": jsonResponse.title,
-                "description": jsonResponse.description,
-                "media": {
-                    "height": "MEDIUM",
-                    "contentInfo": {
-                        "fileUrl": jsonResponse.image,
-                        "forceRefresh": "false"
-                    }
-                },
-                "suggestions": suggestions,
-            }
-        }
-        this.internet.sendRcsCard(to, payload, (response: any) => {
-            if (response && response.success) {
-                if (continueWithNormalFlow) {
-                    this.doAfterSendingRCS(to, jsonResponse);
-                } else {
-                    ToastComponent.ShowToast.emit('Message sent!')
-                }
-            } else {
-                ToastComponent.ShowToast.emit(response.message);
-            }
+        CommonFunctions.sendRCSCard(this.internet, jsonResponse, continueWithNormalFlow, (data: { success: boolean, to: string }) => {
+            this.doAfterSendingRCS(data.to, jsonResponse);
         })
     }
 

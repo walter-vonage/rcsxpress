@@ -1,4 +1,4 @@
-<div class="row p-0 m-0">
+<div class="row p-0 m-0 bg-dark">
     <!--
         LEFT COL
     -->
@@ -24,22 +24,19 @@
         <!-- Fixed input at bottom -->
         <div class="fixed-bottom border-top border-secondary p-3 bg-dark">
             <div class="d-flex justify-content-between align-items-center gap-3">
-                <input #inputBox [(ngModel)]="query" (keydown.enter)="send()" class="form-control bg-transparent rounded-4 p-3" autofocus />
+                <input #inputBox [(ngModel)]="query" (keydown.enter)="send()" class="text-light form-control bg-transparent rounded-4 p-3" autofocus />
                 <button class="btn btn-secondary rounded-3" (click)="send()">
                     Send
                 </button>
             </div>
         </div>
     </div>
-
     <!--
         RIGHT COL
     -->
     <div class="col-12 col-md-4 vh-100 overflow-hidden">
-        <div class="flex-grow-1 overflow-auto" style="height: calc(100vh - 120px)">
-            <app-openai-rcs-history-rcs-sent [NotifyChangesInStorage]="NotifyChangesInStorage"
-                [ListenerForSendingRCSCards]="ListenerForSendingRCSCards"></app-openai-rcs-history-rcs-sent>
+        <div class="flex-grow-1 overflow-auto" style="height: calc(100vh - 120px)" *ngIf="flowFromAi">
+            <app-ecommerce-preview [flow]="flowFromAi"></app-ecommerce-preview>
         </div>
     </div>
-
 </div>

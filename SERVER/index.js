@@ -22,7 +22,7 @@ const corsOptions = {
     optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
-const PORT = process.env.PORT || 3020;
+const PORT = process.env.VCR_PORT || 3020;
 const upload = multer({ 
     dest: "uploads/", 
     limits: { 

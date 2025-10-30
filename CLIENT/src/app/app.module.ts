@@ -12,6 +12,8 @@ import { AuthInterceptor } from './utils/auth.interceptor';
 import { ScreenCreateRcsCardComponent } from './screen/screen-create-rcs-card/screen-create-rcs-card.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ScreenCreateRcsEcommerceFlowComponent } from './screen/screen-create-rcs-ecommerce-flow/screen-create-rcs-ecommerce-flow.component';
+import { EcommercePreviewComponent } from './components/flow/ecommerce/ecommerce-preview/ecommerce-preview.component';
 
 @NgModule({
     declarations: [
@@ -20,7 +22,9 @@ import { FormsModule } from '@angular/forms';
         ThemeToggleComponent,
         TypewriterBlockComponent,
         ToastComponent,
-        ScreenCreateRcsCardComponent
+        ScreenCreateRcsCardComponent,
+        ScreenCreateRcsEcommerceFlowComponent,
+        EcommercePreviewComponent
     ],
     imports: [
         BrowserModule,

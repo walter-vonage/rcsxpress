@@ -13,9 +13,13 @@ export class ScreenHomeComponent {
     ) {}
 
     menu = [{
-        title: 'Create RCS Rich Cards',
+        title: 'RCS Rich Cards',
         description: `Talk to an AI and create powerful RCS rich cards with action buttons`,
         route: 'new/rcs/card'
+    }, {
+        title: 'e-Commerce RCS Flow',
+        description: `Talk to an AI and create powerful e-Commerce flows`,
+        route: 'new/rcs/flow/ecommerce'
     }]
 
     goto(route: string) {
