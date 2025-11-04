@@ -79,6 +79,52 @@ export async function processWebhooks(req, res) {
 
     // Handle button replies
     if (replyTitle || replyId) {
+        const action = replyId || replyTitle;
+
+        if (action === 'view_basket') {
+            const basket = sessions[phone].basket;
+            const message = basket.length
+                ? '🛒 Your Basket:\n' + basket.map((i, idx) => `${idx + 1}. ${i}`).join('\n')
+                : 'Your basket is empty.';
+            const suggestions = [
+                {
+                    reply: {
+                        text: '⬅️ Back to Menu',
+                        postbackData: sessions[phone].currentStepId // go back to the last card
+                    }
+                }
+            ];
+            sendRCSButtons(phone, message, suggestions, Config.WEBHOOK_URL, () => {
+                console.log('📤 Sent basket summary with Back to Menu option');
+            });
+            return res.status(200).json({ success: true });
+        }
+
+        if (action === 'checkout') {
+            const basket = sessions[phone].basket;
+            if (!basket.length) {
+                sendRCSText(phone, 'Your basket is empty.', Config.WEBHOOK_URL, () => { });
+                return res.status(200).json({ success: true });
+            }
+            const message = `Checkout initiated!\nYou have ${basket.length} item(s):\n` + basket.map((i, idx) => `${idx + 1}. ${i}`).join('\n');
+            // Add "Back to Menu" after checkout confirmation
+            const suggestions = [
+                {
+                    reply: {
+                        text: '⬅️ Back to Menu',
+                        postbackData: sessions[phone].currentStepId
+                    }
+                }
+            ];
+            sendRCSButtons(phone, message, suggestions, Config.WEBHOOK_URL, () => {
+                console.log('📤 Sent checkout confirmation with Back to Menu option');
+            });
+            // Optionally clear the basket
+            sessions[phone].basket = [];
+            return res.status(200).json({ success: true });
+        }
+
+        // Continue normal flow
         const nextId = replyId || findNextId(flow, replyTitle);
         if (nextId) runStep(flow, phone, nextId);
         return res.status(200).json({ success: true });
@@ -185,7 +231,8 @@ async function runStep(flow, phone, stepId) {
     if (!step) return console.warn('Invalid step:', stepId);
 
     // Save current step in session
-    sessions[phone].currentStepId = stepId;
+    const session = sessions[phone];
+    session.currentStepId = stepId;
 
     switch (step.type) {
         case 'message':
@@ -202,6 +249,17 @@ async function runStep(flow, phone, stepId) {
 
         case 'card':
         case 'checkout': {
+            // Handle stateActions (basket logic)
+            if (step.buttons) {
+                for (const btn of step.buttons) {
+                    if (btn.stateActions && Array.isArray(btn.stateActions)) {
+                        for (const action of btn.stateActions) {
+                            handleStateAction(phone, action);
+                        }
+                    }
+                }
+            }
+
             // Convert buttons into RCS suggestions
             const suggestions = step.buttons.map(b => ({
                 reply: {
@@ -210,8 +268,24 @@ async function runStep(flow, phone, stepId) {
                 }
             }));
 
+            // If basket has items, add extra actions
+            if (session.basket?.length > 0) {
+                suggestions.push({
+                    reply: {
+                        text: '🛍️ View Basket',
+                        postbackData: 'view_basket'
+                    }
+                });
+                suggestions.push({
+                    reply: {
+                        text: '💳 Checkout',
+                        postbackData: 'checkout'
+                    }
+                });
+            }
+
             sendRCSButtons(phone, step.title || step.text || 'Choose an option:', suggestions, Config.WEBHOOK_URL, () => {
-                console.log(`📤 Sent card with ${suggestions.length} buttons`);
+                console.log(`Sent card with ${suggestions.length} buttons`);
             });
             break;
         }
@@ -221,8 +295,42 @@ async function runStep(flow, phone, stepId) {
     }
 }
 
+function handleStateAction(phone, action) {
+    const session = sessions[phone];
+    if (!session) return;
+
+    switch (action.action) {
+        case 'addToBasket':
+            if (action.item && !session.basket.includes(action.item)) {
+                session.basket.push(action.item);
+                console.log(`Added to basket for ${phone}: ${action.item}`);
+            }
+            break;
+
+        case 'removeFromBasket':
+            if (action.item) {
+                session.basket = session.basket.filter(i => i !== action.item);
+                console.log(`Removed from basket for ${phone}: ${action.item}`);
+            }
+            break;
+
+        case 'clearBasket':
+            session.basket = [];
+            console.log(`Basket cleared for ${phone}`);
+            break;
+
+        default:
+            console.log(`Unknown basket action: ${action.action}`);
+    }
+}
+
+
 export function startFlow(phone, flow) {
-    sessions[phone] = { flow, currentStepId: flow.start };
-    console.log(`Starting flow for ${phone}`);
+    sessions[phone] = { 
+        flow, 
+        currentStepId: flow.start,
+        basket: []  // Add basket per user
+    };
+    console.log(`Starting flow for ${phone}`);    
     runStep(flow, phone, flow.start);
 }
