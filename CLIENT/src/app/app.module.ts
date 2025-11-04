@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ScreenCreateRcsEcommerceFlowComponent } from './screen/screen-create-rcs-ecommerce-flow/screen-create-rcs-ecommerce-flow.component';
 import { EcommercePreviewComponent } from './components/flow/ecommerce/ecommerce-preview/ecommerce-preview.component';
+import { StoredConfigurationsComponent } from './components/stored-configurations/stored-configurations.component';
 
 @NgModule({
     declarations: [
@@ -24,7 +25,8 @@ import { EcommercePreviewComponent } from './components/flow/ecommerce/ecommerce
         ToastComponent,
         ScreenCreateRcsCardComponent,
         ScreenCreateRcsEcommerceFlowComponent,
-        EcommercePreviewComponent
+        EcommercePreviewComponent,
+        StoredConfigurationsComponent
     ],
     imports: [
         BrowserModule,

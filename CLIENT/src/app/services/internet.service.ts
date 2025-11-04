@@ -50,4 +50,26 @@ export class InternetService {
             }
         }, callback);   
     }
+    //
+    //  STORE FLOW
+    //
+    storeFlow(userPhone: string, flow: any, callback: any) {
+        const lang: string = LangUtils.detectLanguage();
+        this.internetCommon?.doPost(this.SERVER + '/storeFlow', {
+            lang,
+            userPhone,
+            flow
+        }, callback);   
+    }
+    //
+    //  START FLOW
+    //
+    startFlow(userPhone: string, flow: any, callback: any) {
+        const lang: string = LangUtils.detectLanguage();
+        this.internetCommon?.doPost(this.SERVER + '/startFlow', {
+            lang,
+            userPhone,
+            flow
+        }, callback);   
+    }
 }

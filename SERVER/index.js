@@ -3,6 +3,7 @@ import multer from "multer";
 import cors from 'cors';
 import "dotenv/config";
 import { TasksRegistry } from "./task-regitry.js";
+import { processWebhooks, startFlow, storeFlow } from "./tasks/run_flow.js";
 
 // =============================
 //  DO THE INIT
@@ -23,29 +24,29 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 const PORT = process.env.VCR_PORT || 3020;
-const upload = multer({ 
-    dest: "uploads/", 
-    limits: { 
-        fileSize: 1024 * 1024 * 1024 
-    } 
+const upload = multer({
+    dest: "uploads/",
+    limits: {
+        fileSize: 1024 * 1024 * 1024
+    }
 }); // 1GB
 
 // =============================
 //  ALL POST GO HERE
 // =============================
 app.post('/api/v1', upload.single('file'), async (req, res) => {
-   let { action, data } = req.body;
-   if (typeof data === 'string') {
-       try {
-           data = JSON.parse(data);
-       } catch (err) {
-           return res.status(200).json({ 
-               success: false,
-               message: 'Invalid JSON in "data" field' 
-           });
-       }
-   }
-   await runTask(action, data, req, res);
+    let { action, data } = req.body;
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (err) {
+            return res.status(200).json({
+                success: false,
+                message: 'Invalid JSON in "data" field'
+            });
+        }
+    }
+    await runTask(action, data, req, res);
 })
 
 // =============================
@@ -70,6 +71,31 @@ async function runTask(action, data, req, res) {
         })
     }
 }
+
+//  ============================
+//  VONAGE WEBHOOKS
+//  ============================
+app.post('/webhook', async (req, res) => {
+    processWebhooks(req, res);
+})
+
+//  ============================
+//  STORE THE FLOW FRM ANGULAR
+//  ============================
+app.post('/storeFlow', (req, res) => {
+    const { userPhone, flow } = req.body;
+    storeFlow(userPhone, flow);
+    res.status(200).json({ success: true });
+});
+
+//  ============================
+//  STARTS FLOW
+//  ============================
+app.post('/startFlow', (req, res) => {
+    const { userPhone, flow } = req.body;
+    startFlow(userPhone, flow);
+    res.status(200).json({ success: true });
+});
 
 // =============================
 // VCR utils

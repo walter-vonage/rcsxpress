@@ -7,7 +7,7 @@ export class Config {
     public static SERVER = {
         dev: true,
         local: 'http://localhost:3020',
-        remote: 'https://localhost:3020',
+        remote: 'https://8a7f2c328ff6.ngrok-free.app',
     }
 
     public static CLIENT = {

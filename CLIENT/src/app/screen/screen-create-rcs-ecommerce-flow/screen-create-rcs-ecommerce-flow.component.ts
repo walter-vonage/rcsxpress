@@ -58,6 +58,8 @@ export class ScreenCreateRcsEcommerceFlowComponent implements OnInit {
      */
     query: string | undefined;
 
+    selectedFile: File | null = null;
+
     /**
      * This is the training for openai
      */
@@ -466,44 +468,105 @@ Example output:
     /**
      * Sends the user input to openai
      */
-    send() {
-        if (this.query) {
-            this.history.push({
-                role: 'user',
-                content: this.query
-            });    
-            this.history.push({
-                role: 'assistant',
-                content: 'Working on it...'
-            });    
-            const query = `Do the updates the user asks and return the flow updated.
-User input: ${this.query}            
-Current flow: ${JSON.stringify(this.flowFromAi)}`
-            this.query = undefined;
-            this.executeAI(query, this.system, this.history, (openaiResponse: string) => {
-                const jsonResponse = CommonFunctions.parseIfJson(openaiResponse.replace(/^[^{]+/, ''));
-                if (jsonResponse) {
-                    this.flowFromAi = null;
-                    setTimeout(() => {
-                        //  Agent is sending us a JSON element
-                        this.flowFromAi = jsonResponse;
-                        console.log(this.flowFromAi);
-                    }, 1000)
-                    this.history.push({
-                        role: 'assistant',
-                        content: 'Done! The updated flow should appear on the right of the screen now.'
-                    });            
-                } else {
-                    //  Agent is sending a text - But it shouldn't
-                    ToastComponent.ShowToast.emit('The agent has sent an incorrect format. Unable to continue')
-                }
-                this.scrollToBottom();
+    async send() {
+        const text = this.query?.trim();
+        const file = this.selectedFile;
+
+        // Don't send if there's absolutely nothing
+        if (!text && !file) return;
+
+        let csvContent: string | null = null;
+
+        // If a file is attached, validate and read it
+        if (file) {
+            // Validate file type
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                alert('Please upload a valid CSV file.');
+                this.selectedFile = null;
+                return;
+            }
+
+            // Validate file size (10MB limit)
+            const maxSize = 10 * 1024 * 1024; // 10 MB
+            if (file.size > maxSize) {
+                alert('File too large. Maximum allowed size is 10MB.');
+                this.selectedFile = null;
+                return;
+            }
+
+            // Read file content as text
+            csvContent = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsText(file);
             });
         }
+
+        // Show user message in history (with optional file name)
+        let userMessage = text || '';
+        if (file) {
+            userMessage += (userMessage ? '\n' : '') + `\n📎 Attached: ${file.name}`;
+        }
+
+        this.history.push({ role: 'user', content: userMessage });
+
+        this.history.push({
+            role: 'assistant',
+            content: 'Working on it...'
+        });    
+        let query = `Do the updates the user asks and return the flow updated.
+User input: ${userMessage}. 
+Current flow: ${JSON.stringify(this.flowFromAi)}.` 
+        if (csvContent) {
+            query += `User also added this content from a file: ${csvContent}`
+        }
+        this.query = undefined;
+        this.executeAI(query, this.system, this.history, (openaiResponse: string) => {
+            const jsonResponse = CommonFunctions.parseIfJson(openaiResponse.replace(/^[^{]+/, ''));
+            if (jsonResponse) {
+                this.flowFromAi = null;
+                setTimeout(() => {
+                    //  Agent is sending us a JSON element
+                    this.flowFromAi = jsonResponse;
+                    console.log(this.flowFromAi);
+                }, 1000)
+                this.history.push({
+                    role: 'assistant',
+                    content: 'Done! The updated flow should appear on the right of the screen now.'
+                });            
+            } else {
+                //  Agent is sending a text - But it shouldn't
+                ToastComponent.ShowToast.emit('The agent has sent an incorrect format. Unable to continue')
+            }
+            this.scrollToBottom();
+        });
+    }
+
+    onFileSelected(event: any) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate type
+        if (!file.name.endsWith('.csv')) {
+            alert('Please upload a CSV file.');
+            this.selectedFile = null;
+            return;
+        }
+
+        // Validate size (10 MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10 MB
+        if (file.size > maxSize) {
+            alert('File too large. Maximum size is 10MB.');
+            this.selectedFile = null;
+            return;
+        }
+
+        this.selectedFile = file;
     }
 
     /**
-     * Sends any tet to the Agent
+     * Sends any text to the Agent
      * @param query 
      * @param addToHistory 
      * @param callback 

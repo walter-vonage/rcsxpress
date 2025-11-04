@@ -1,0 +1,24 @@
+<div class="d-flex justify-content-center align-items-center gap-3">
+    
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="phoneDropdown" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            {{ selectedName || 'Select user phone' }}
+        </button>
+    
+        <ul class="dropdown-menu" aria-labelledby="phoneDropdown">
+            <li *ngFor="let item of phoneList">
+                <button class="dropdown-item" (click)="selectPhone(item)">
+                    {{ item.name }}
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div>
+        <button class="btn btn-primary rounded-pill" *ngIf="flowFromAi && selectedPhone" (click)="sendRCS()">
+            Send RCS
+        </button>
+    </div>
+
+</div>

@@ -3,7 +3,9 @@
         LEFT COL
     -->
     <div class="col-12 col-md-8 overflow-hidden">
-        <!-- Scrollable chat history -->
+        <!-- 
+            Scrollable chat history 
+        -->
         <div #scrollContainer class="flex-grow-1 overflow-auto p-3" style="height: calc(100vh - 120px)">
             <div class="mb-3" *ngFor="let item of history">
                 <div class="d-flex justify-content-start" *ngIf="item.role == 'assistant'">
@@ -21,11 +23,24 @@
                 </div>
             </div>
         </div>
-        <!-- Fixed input at bottom -->
+        <!-- 
+            Fixed input at bottom 
+        -->
         <div class="fixed-bottom p-3">
             <div class="d-flex justify-content-center align-items-center">
                 <div class="d-flex justify-content-between align-items-center gap-3" style="min-width: 60vw;">
+                    
                     <input #inputBox [(ngModel)]="query" (keydown.enter)="send()" class="form-control bg-transparent rounded-4 p-3" placeholder="Chat with the Agent..." autofocus />
+
+                    <!-- File input -->
+                    <input
+                    type="file"
+                    accept=".csv"
+                    (change)="onFileSelected($event)"
+                    class="form-control-file"
+                    style="max-width: 160px;"
+                    />
+
                     <button class="btn btn-primary rounded-3" (click)="send()">
                         Send
                     </button>
@@ -39,6 +54,9 @@
     <div class="col-12 col-md-4 vh-100 overflow-hidden">
         <div class="flex-grow-1 overflow-auto" style="height: calc(100vh - 120px)" *ngIf="flowFromAi">
             <app-ecommerce-preview [flow]="flowFromAi"></app-ecommerce-preview>
+        </div>
+        <div class="d-flex justify-content-center" *ngIf="flowFromAi">
+            <app-stored-configurations [flowFromAi]="flowFromAi"></app-stored-configurations>
         </div>
     </div>
 </div>
